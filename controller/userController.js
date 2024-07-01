@@ -329,3 +329,57 @@ GROUP BY
 // LEFT JOIN referrals ON referrals.ref = referrer.referee
 // LEFT JOIN referrals AS referred ON referred.ref = referrals.referee
 // WHERE users.referral = '8Ag6hanW';
+
+
+
+// ALL LEVEL 1 - 3 BONUSES 
+// SELECT 
+//     users.referral AS user, 
+//     COUNT(DISTINCT referrer.referee) AS level1, 
+//     COUNT(DISTINCT referrals.referee) AS level2, 
+//     COUNT(DISTINCT referred.referee) AS level3,
+//     COALESCE((SELECT SUM(cart1.profit) FROM carts cart1 WHERE cart1.mobile = referrer.mobile), 0) AS investment1,
+//     COALESCE((SELECT SUM(cart2.profit) FROM carts cart2 WHERE cart2.mobile = referrals.mobile), 0) AS investment2,
+//     COALESCE((SELECT SUM(cart3.profit) FROM carts cart3 WHERE cart3.mobile = referred.mobile), 0) AS investment3
+// FROM 
+//     users 
+// LEFT JOIN 
+//     referrals AS referrer ON referrer.ref = users.referral 
+// LEFT JOIN 
+//     referrals AS referrals ON referrals.ref = referrer.referee 
+// LEFT JOIN 
+//     referrals AS referred ON referred.ref = referrals.referee 
+// WHERE 
+//     users.referral = 11111 
+// GROUP BY 
+//     users.referral;
+
+
+
+
+// SELECT 
+// users.referral AS user, 
+// COUNT(DISTINCT referrer.referee) AS level1, 
+// COUNT(DISTINCT referrals.referee) AS level2, 
+// COUNT(DISTINCT referred.referee) AS level3,
+// COALESCE((SELECT SUM(cart1.profit) FROM carts cart1 WHERE cart1.mobile = referrer.mobile), 0) AS investment1,
+// COALESCE((SELECT SUM(cart2.profit) FROM carts cart2 WHERE cart2.mobile = referrals.mobile), 0) AS investment2,
+// COALESCE((SELECT SUM(cart3.profit) FROM carts cart3 WHERE cart3.mobile = referred.mobile), 0) AS investment3
+// FROM 
+// users 
+// LEFT JOIN 
+// referrals AS referrer ON referrer.ref = users.referral 
+// LEFT JOIN 
+// referrals AS referrals ON referrals.ref = referrer.referee 
+// LEFT JOIN 
+// referrals AS referred ON referred.ref = referrals.referee 
+// LEFT JOIN 
+// carts AS cart1 ON cart1.mobile = referrer.mobile
+// LEFT JOIN 
+// carts AS cart2 ON cart2.mobile = referrals.mobile
+// LEFT JOIN 
+// carts AS cart3 ON cart3.mobile = referred.mobile
+// WHERE 
+// users.referral = 11111 
+// GROUP BY 
+// users.referral;
