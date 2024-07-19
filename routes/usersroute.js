@@ -14,4 +14,7 @@ usersrouter.get("/refer/:referral", referral)
 usersrouter.get("/ref/:ref", getReferrals)
 
 
+// ADMIN
+usersrouter.get("/total/users", totalUsers)
+
 module.exports = usersrouter

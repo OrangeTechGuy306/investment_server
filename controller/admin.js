@@ -5,8 +5,7 @@ const { sql } = require("../sql")
 module.exports.addAdmin = (req,res)=>{
 
     const {mobile, password} = req.body
-  
-    
+
     try {
         if(mobile.trim() === "" || password.trim() === "" ){
             res.send({status:false, msg:"All Fields are required!"})

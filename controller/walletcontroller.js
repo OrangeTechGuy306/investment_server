@@ -85,6 +85,7 @@ module.exports.checkin = (req, res) => {
 };
 
 module.exports.getUsersDeposit = (req, res) => {
+  
   const { mobile } = req.params;
 
   try {

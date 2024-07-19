@@ -112,19 +112,21 @@ module.exports.getUser = (req, res) => {
   // res.render("login")
 };
 
+// FETCH ALL USERS TO THE DASHBOARD
 module.exports.getAllUsers = (req, res) => {
+
   try {
     sql.getConnection((e, con) => {
       if (e) console.log(e);
 
       con.query(
-        "SELECT users.referral AS user, users.name AS mobile, COUNT(referrer.referee) AS level1, COUNT(referrals.referee) AS level2, COUNT(referred.referee) AS level3, SUM(cart1.product_price) AS cart1, SUM(cart2.product_price) AS cart2, SUM(cart3.product_price) AS cart3 FROM users LEFT JOIN referrals AS referrer ON referrer.ref = users.referral LEFT JOIN referrals ON referrals.ref = referrer.referee LEFT JOIN referrals AS referred ON referred.ref = referrals.referee LEFT JOIN carts AS cart1 ON cart1.mobile = referrer.mobile LEFT JOIN carts AS cart2 ON cart2.mobile = referrals.mobile LEFT JOIN carts AS cart3 ON cart3.mobile = referred.mobile",
+        "SELECT * FROM users",
         (er, users) => {
           if (er) console.log(er);
 
           if (users != "") {
             res.send({ status: true, msg: users });
-            console.log(users);
+            // console.log(users);
           } else {
             res.send({ status: false, msg: "No User Found" });
           }
@@ -168,6 +170,7 @@ module.exports.searchUser = (req, res) => {
 
 module.exports.totalUsers = (req, res) => {
   try {
+    
     sql.getConnection((e, con) => {
       if (e) console.log(e);
 
@@ -268,26 +271,7 @@ module.exports.getReferrals = (req, res) => {
       if (e) console.log(e);
 
       con.query(
-        `SELECT 
-    users.referral AS user, 
-    COUNT(DISTINCT referrer.referee) AS level1, 
-    COUNT(DISTINCT referrals.referee) AS level2, 
-    COUNT(DISTINCT referred.referee) AS level3 
-FROM 
-    users 
-LEFT JOIN 
-    referrals AS referrer 
-    ON referrer.ref = users.referral 
-LEFT JOIN 
-    referrals AS referrals 
-    ON referrals.ref = referrer.referee 
-LEFT JOIN 
-    referrals AS referred 
-    ON referred.ref = referrals.referee 
-WHERE 
-    users.referral = ? 
-GROUP BY 
-    users.referral;
+        `SELECT users.referral AS user, COUNT(DISTINCT referrer.referee) AS level1, COUNT(DISTINCT referrals.referee) AS level2, COUNT(DISTINCT referred.referee) AS level3, COALESCE((SELECT SUM(cart1.price) FROM carts cart1 WHERE cart1.mobile = referrer.mobile), 0) AS investment1, COALESCE((SELECT SUM(cart2.price) FROM carts cart2 WHERE cart2.mobile = referrals.mobile), 0) AS investment2, COALESCE((SELECT SUM(cart3.price) FROM carts cart3 WHERE cart3.mobile = referred.mobile), 0) AS investment3 FROM users LEFT JOIN referrals AS referrer ON referrer.ref = users.referral LEFT JOIN referrals AS referrals ON referrals.ref = referrer.referee LEFT JOIN referrals AS referred ON referred.ref = referrals.referee WHERE users.referral = ?;
 `,
         [ref],
         (er, bonus) => {
@@ -297,10 +281,20 @@ GROUP BY
             const totallevel1 = bonus[0].level1;
             const totallevel2 = bonus[0].level2;
             const totallevel3 = bonus[0].level3;
+            const inv1 = parseInt(bonus[0].investment1);
+            const inv2 = parseInt(bonus[0].investment2);
+            const inv3 = parseInt(bonus[0].investment3);
+
+            const percent1 = (20/100) * inv1
+            const percent2 = (2/100) * inv2
+            const percent3 = (1/100) * inv3
+
+            const revenue = percent1 + percent2 + percent3
+
             const totalsummary = totallevel1 + totallevel2 + totallevel3;
             res.send({
               status: true,
-              msg: { totallevel1, totallevel2, totallevel3, totalsummary },
+              msg: { totallevel1, totallevel2, totallevel3, totalsummary, percent1, percent2, percent3, revenue  },
             });
           } else {
             res.send({
@@ -316,6 +310,10 @@ GROUP BY
     console.log(error);
   }
 };
+
+
+// FETCH ALL USERS TO THE DASHBOARD
+
 
 // ALL LEVEL 1 - LEVEL 3 REFERRALS
 

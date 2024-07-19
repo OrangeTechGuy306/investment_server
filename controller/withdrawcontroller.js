@@ -45,7 +45,7 @@ module.exports.withdrawals = (req,res)=>{
                 
                 if(e) console.log(e)
 
-                con.query("SELECT * FROM withdrawals", (err, withdrawals)=>{
+                con.query("SELECT * FROM withdrawals ORDER BY status ASC", (err, withdrawals)=>{
                     if(err) console.log(err)
     
                     if(withdrawals != ""){
@@ -66,9 +66,9 @@ module.exports.withdrawals = (req,res)=>{
 
 module.exports.grantWithdrawal = (req,res)=>{
     
-    const {with_id} = req.body
-    const status = "TRANSFERRED"
-    console.log(with_id)
+    const {with_id, status, mobile} = req.body
+    // const status = "TRANSFERRED"
+
     
     try {
         if(!with_id){
@@ -77,10 +77,10 @@ module.exports.grantWithdrawal = (req,res)=>{
            sql.getConnection((e, con)=>{
             if(e) console.log(e)
 
-            con.query("UPDATE withdrawals SET status = ? WHERE with_id = ?", [status, with_id],(err, suc)=>{
+            con.query("UPDATE withdrawals SET status = ? WHERE with_id = ? AND mobile = ?", [status, with_id, mobile],(err, suc)=>{
                 if(err) console.log(err)
 
-                if(suc) res.send({status:true, msg:"product added successfully"})
+                if(suc) res.send({status:true, msg:"Transaction Updated"})
 
             })
             con.release()
@@ -312,4 +312,30 @@ module.exports.fetchUserDepositRecords = (req, res)=>{
     } catch (error) {
         console.log(error)
     }
+}
+
+
+module.exports.deleteWithdrawal = (req,res)=>{
+
+    const {with_id, mobile} = req.body
+
+    console.log(req.body)
+
+    try{
+
+        sql.getConnection((e, con)=>{
+            
+            if(e) console.log(e)
+
+            con.query("DELETE FROM withdrawals WHERE with_id = ? AND mobile = ?",[with_id, mobile], (err, withdrawals)=>{
+                if(err) console.log(err)
+              
+                res.send({status:true, msg:"withdrawal Removed"})
+            })
+            con.release()
+        })
+    
+} catch (error) {
+    console.log(error)
+}
 }
